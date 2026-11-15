@@ -7,9 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import java.time.Duration;
+import java.time.Instant;
 import java.net.URI;
-
+import com.example.shortener.common.NotFoundException;
 @Service
 @RequiredArgsConstructor
 public class UrlService {
@@ -65,5 +66,21 @@ public class UrlService {
         }
     }
 
-    // resolve() will be implemented in Section 7.
+    public String resolve(String code) {
+    String key = "url:" + code;
+    String cached = redis.opsForValue().get(key);
+    if (cached != null) return cached;                      // fast path: no DB touched
+
+    ShortUrl s = repo.findByCode(code).orElseThrow(() -> new NotFoundException(code));
+    Instant now = Instant.now();
+    if (s.getExpiresAt() != null && s.getExpiresAt().isBefore(now)) throw new NotFoundException(code);
+
+    Duration ttl = Duration.ofHours(ttlHours);
+    if (s.getExpiresAt() != null) {                         // never cache past the link's own expiry
+        Duration left = Duration.between(now, s.getExpiresAt());
+        if (left.compareTo(ttl) < 0) ttl = left;
+    }
+    redis.opsForValue().set(key, s.getOriginalUrl(), ttl);
+    return s.getOriginalUrl();
+}
 }
