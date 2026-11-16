@@ -23,7 +23,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
   app:
     profiles: ["app"]          # only starts with: docker compose --profile app up
-    build: .
+    build: ./shortener
     ports: ["8080:8080"]
     depends_on: [postgres, redis, kafka]
     environment:
