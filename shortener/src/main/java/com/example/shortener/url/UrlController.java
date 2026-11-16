@@ -1,6 +1,6 @@
 package com.example.shortener.url;
 
-//import com.example.shortener.analytics.ClickPublisher;
+import com.example.shortener.analytics.ClickPublisher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.net.URI;
 public class UrlController {
 
     private final UrlService urlService;
-   //private final ClickPublisher clickPublisher;
+    private final ClickPublisher clickPublisher;
 
     @PostMapping("/api/urls")
     public ResponseEntity<CreateUrlResponse> create(
@@ -34,7 +34,7 @@ public class UrlController {
 
         String target = urlService.resolve(code);
 
-        //clickPublisher.publish(code, request);
+        clickPublisher.publish(code, request);
 
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(target))
