@@ -231,7 +231,3 @@ Planned improvements, roughly in priority order:
 - [ ] Refresh tokens and role-based access
 - [ ] Helm chart, Ingress with TLS
 - [ ] Load-test results (k6)
-
-## License
-
-Add a license (for example MIT) before publishing, or remove this section.
